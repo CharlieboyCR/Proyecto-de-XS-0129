@@ -9,7 +9,7 @@ library(readr)
 ui <- dashboardPage(title = "Proyecto Shiny", 
                     skin = "green",
   dashboardHeader(
-    title = "Proyecto"
+    title = "Proyecto test"
   ),
   
   dashboardSidebar(
