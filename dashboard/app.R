@@ -13,7 +13,35 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   ),
   
   dashboardSidebar(
-    
+    sidebarMenu(
+      menuItem(
+        "Datos"
+      ),
+      menuItem(
+        "Primera pregunta"
+      ),
+      menuItem(
+        "Segunda pregunta"
+      ),
+      menuItem(
+        "Tercera pregunta"
+      ),
+      menuItem(
+        "Cuarta pregunta"
+      ),
+      menuItem(
+        "Parametros editables",
+        menuSubItem(
+          "Primer parametro global"
+        ),
+        menuSubItem(
+          "Segundo parametro global"
+        ),
+        menuSubItem(
+          "Tercer parametro global"
+        )
+      )
+    )
   ),
   
   dashboardBody(
