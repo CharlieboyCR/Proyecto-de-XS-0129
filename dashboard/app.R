@@ -5,19 +5,11 @@ library(shinydashboard)
 library(tidyverse)
 library(readr)
 
-base <- read_delim("https://github.com/CharlieboyCR/Proyecto-de-XS-0129/blob/51bf4cb8a55c1f6955c89ff7b6e49d0271cc317a/student-por.csv",
+base <- read_delim("~/Proyecto-de-XS-0129/student-por.csv",
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
-grafico <- ggplot(base, aes(x = Medu, fill = higher)) + # Nota: hacer interactivo para cambiar entre padre y madre 
-  geom_bar(position = "fill")+
-  labs(x= "nivel eduvactivo de la madre", y= "Proporcion")+
-  scale_fill_manual(
-    values = c("yes" = "darkgreen",
-               "no" = "red"))
 
-grafico
 
-grafico
 # Dashboard
 ui <- dashboardPage(title = "Proyecto Shiny", 
                     skin = "yellow",
@@ -34,7 +26,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
         "Brecha digital en la educación"
       ),
       menuItem(
-        "Educación parental"
+        "Educación parental", tabName = "grafico_3"
       ),
       menuItem(
         "Apoyo educativo"
@@ -55,14 +47,30 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   ),
   
   dashboardBody(
-    
+    tabItems(
+      tabItem(
+        tabName = "grafico_3",
+        h2("Aspiraciones de educación superior vs. educación parental"),
+        p("Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magni ratione rem, odit dignissimos, laboriosam iure perferendis commodi reprehenderit, officiis ullam similique! Corporis, quaerat? Neque quae excepturi dolorem blanditiis magnam recusandae?"),
+        plotOutput("grafico_3"),
+        p("Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magni ratione rem, odit dignissimos, laboriosam iure perferendis commodi reprehenderit, officiis ullam similique! Corporis, quaerat? Neque quae excepturi dolorem blanditiis magnam recusandae?")
+      )
+    )
   )
 )
   
   
 # Servidor
 server = function(input, output){
-  
+  output$grafico_3 = renderPlot({
+    ggplot(base, aes(x = Medu, fill = higher)) + # Nota: hacer interactivo para cambiar entre padre y madre 
+      geom_bar(position = "fill")+
+      labs(x= "nivel eduvactivo de la madre", y= "Proporcion")+
+      scale_fill_manual(
+        values = c("yes" = "darkgreen",
+                   "no" = "red"))
+    
+  })
 }
 
 shinyApp(ui = ui, server = server)
