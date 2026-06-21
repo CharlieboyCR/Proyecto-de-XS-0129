@@ -5,6 +5,9 @@ library(shinydashboard)
 library(tidyverse)
 library(readr)
 
+base <- read_delim("~/Proyecto-de-XS-0129/student-por_test.csv", 
+                      delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
 # Dashboard
 ui <- dashboardPage(title = "Proyecto Shiny", 
                     skin = "yellow",
