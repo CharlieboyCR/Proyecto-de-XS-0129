@@ -7,7 +7,7 @@ library(readr)
 
 # Dashboard
 ui <- dashboardPage(title = "Proyecto Shiny", 
-                    skin = "green",
+                    skin = "yellow",
   dashboardHeader(
     title = "Proyecto test"
   ),
@@ -15,19 +15,16 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   dashboardSidebar(
     sidebarMenu(
       menuItem(
-        "Datos"
+        "Estudio y rendimiento académico"
       ),
       menuItem(
-        "Primera pregunta"
+        "Brecha digital en la educación"
       ),
       menuItem(
-        "Segunda pregunta"
+        "Educación parental"
       ),
       menuItem(
-        "Tercera pregunta"
-      ),
-      menuItem(
-        "Cuarta pregunta"
+        "Apoyo educativo"
       ),
       menuItem(
         "Parametros editables",
