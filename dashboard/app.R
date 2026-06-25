@@ -32,10 +32,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
 server = function(input, output){
   
   output$plot_1 <- renderPlot({
-    ggplot(data = base, aes(x = absences, y = G3, colour = case)) 
-    + geom_point() 
-    + geom_smooth(formula = y ~ x, method = "lm")
-    
+    ggplot(data = base, aes(x = absences, y = G3, color = case_when(G3 <= 9 ~ "Desempeño insuficiente", G3 < 13 ~ "Satisfactorio", G3 < 17 ~ "Bueno", G3 >= 17 ~ "Excelente"))) + geom_point() + labs(color = "Categoría") + geom_smooth(method = "lm", se = FALSE)
   })
 }
 
