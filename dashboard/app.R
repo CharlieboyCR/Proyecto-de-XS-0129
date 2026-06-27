@@ -62,12 +62,24 @@ ui <- dashboardPage(title = "Proyecto Shiny",
           p("3: educación secundaria completada"),
           p("4: educación superior completada")
         ),
+        
         div(style = "font-size:20px; text-align:center",
+            
           radioButtons(
             inputId = "Selector_madre_padre", 
             label = "Escoja uno de los padres para ser representado en el gráfico",
             choices = c(
               "Madre" = "Madre", "Padre" = "Padre")
+          ),
+          
+          radioButtons(
+            inputId = "Selector_genero",
+            label = "Seleccione un genero",
+            choices = c(
+              "Ambos" = "Ambos",
+              "Hombres" = "Hombres",
+              "Mujeres" = "Mujeres"
+            )
           )
         )
       )
@@ -80,9 +92,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     fluidRow(
       box(width = 12,
         h3("Podemos llegar a las siguientes concluciones viendo el gráfico de barras:"),
-        p("Lorem ipsum dolor sit amet consectetur adipiscing elit torquent dis est, imperdiet potenti porttitor suspendisse per ultrices nullam morbi suscipit curabitur, lectus conubia nec felis mollis tellus etiam vitae parturient. Consequat in eget himenaeos nascetur fermentum mollis tempor pretium, vulputate justo porta congue ornare condimentum cras nullam, tellus natoque nisi felis laoreet semper lectus. Purus aptent nibh tempor iaculis class egestas platea dui auctor et, vestibulum ad sem nascetur sociosqu faucibus tellus est habitant, odio phasellus montes sagittis duis pellentesque justo ac himenaeos.
-
-Libero euismod facilisi bibendum non nullam elementum porta lobortis, dui aliquet morbi mattis ligula commodo cras, penatibus hac et maecenas vel integer tristique. Proin velit fermentum congue augue pretium magna leo platea dictumst aliquet vestibulum montes aliquam et mi, morbi at fames ad taciti ante vulputate fusce hac maecenas mauris nunc donec. Bibendum proin sociis mattis nec eleifend fames eget dignissim risus at elementum, eros massa feugiat et porttitor aptent pellentesque ornare purus hac, venenatis accumsan duis suscipit fringilla mollis vivamus convallis egestas volutpat."))
+        p(""))
           )
         )
       )
@@ -96,29 +106,104 @@ server = function(input, output){
       
       if(input$Selector_madre_padre == "Madre"){
         
-        ggplot(base, aes(x = Medu, fill = higher)) +
+        if (input$Selector_genero == "Hombres") {
           
-          geom_bar(position = "fill")+
+          ggplot(base |> filter(sex == "M"), aes(x = Medu, fill = higher)) +
+            
+            geom_bar(position = "fill") +
+            
+            labs(x= "Nivel educativo de la madre", y = "proporción")+
+            
+            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+            theme(
+              legend.position = "bottom"
+            )
+            
           
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
+        } else if (input$Selector_genero == "Mujeres") {
           
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"))
+          ggplot(base |> filter(sex == "F"), aes(x = Medu, fill = higher)) +
+            
+            geom_bar(position = "fill")+
+            
+            
+            labs(x= "Nivel educativo de la madre", y = "proporción")+
+            
+            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+            theme(
+              legend.position = "bottom"
+            )
           
+        } else {
+          
+          ggplot(base, aes(x = Medu, fill = higher)) +
+            
+            geom_bar(position = "fill")+
+            
+            
+            labs(x= "Nivel educativo de la madre", y = "proporción")+
+            
+            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+            theme(
+              legend.position = "bottom"
+            )
+        }
         
       } else {
-        ggplot(base, aes(x = Fedu, fill = higher)) +
           
-          geom_bar(position = "fill")+
-          
-          labs(x= "Nivel educativo del padre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"))
-        
+          if (input$Selector_genero == "Hombres") {
+            
+            ggplot(base |> filter(sex == "M"), aes(x = Fedu, fill = higher)) +
+              
+              geom_bar(position = "fill")+
+              
+              labs(x= "Nivel educativo de la madre", y = "proporción")+
+              
+              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+              theme(
+                legend.position = "bottom"
+              )
+            
+            
+          } else if (input$Selector_genero == "Mujeres"){
+            
+            ggplot(base |> filter(sex == "F"), aes(x = Fedu, fill = higher)) +
+              
+              geom_bar(position = "fill")+
+              
+              
+              labs(x= "Nivel educativo de la madre", y = "proporción")+
+              
+              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+              theme(
+                legend.position = "bottom"
+              )
+
+            
+          } else {
+            ggplot(base, aes(x = Fedu, fill = higher)) +
+              
+              geom_bar(position = "fill")+
+              
+              
+              labs(x= "Nivel educativo de la madre", y = "proporción")+
+              
+              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
+              theme(
+                legend.position = "bottom",
+              )
+            
       }
       
-    })
   }
-
+})
+}
 
 shinyApp(ui = ui, server = server)
 
