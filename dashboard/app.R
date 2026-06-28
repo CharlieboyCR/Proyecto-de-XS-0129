@@ -4,6 +4,7 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(readr)
+library(ggplot2)
 
 base <- read_delim("~/Proyecto-de-XS-0129/student-por.csv", 
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
@@ -79,11 +80,34 @@ server = function(input, output){
       ylab = "Valor",
       col = "grey"
     ) } else {
+      
+      grupo1 <- base %>% 
+        filter(internet == "yes")
+      grupo2 <- base %>% 
+        filter(internet == "no")
+        
+      n1 <- nrow(grupo1)
+      n2 <- nrow(grupo2)
+      
+      x1 <- mean(grupo1$G3)
+      x2 <- mean(grupo2$G3)
+      
+      s1 <- sd(grupo1$G3)
+      s2 <- sd(grupo2$G3)
+      
+      sp <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2))
+      gl= length(base$G3)-1
+      
+      TObs <- (x1-x2)/(sp*sqrt(1/n1+1/n2))
+      TCrit <- qt(1-0.05/2, df = gl)
+      
       z = seq(-4,4, length.out = 1000)
-      plot(z,dnorm(z))
-    }
-  })
+      plot(z,dt(z, df = gl)) 
+      points(TObs)
+      }
   
+  
+  })
 }
 
 shinyApp(ui = ui, server = server)
