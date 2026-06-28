@@ -52,24 +52,36 @@ ui <- dashboardPage(title = "Proyecto Shiny",
         h2("Brecha digital en la educación"),
         box(
           width = 12,
-          plotOutput("boxplot")
+          radioButtons(
+            inputId = "tipoGrafico",
+            label = "Tipo Análisis",
+            choices = c("Análisis Formal" = "Formal", "Análisis Visual" = "Visual"),
+            selected = "Visual",
+            inline = TRUE
+          ),
+          plotOutput("grafico")
         )
       )
     )
   )
 )
+
   
   
 # Servidor
 server = function(input, output){
-  output$boxplot <- renderPlot ({
+  output$grafico <- renderPlot ({
+    if(input$tipoGrafico == "Visual") {
     boxplot(
       base$G3~base$internet,
       main = "Brecha en la educación",
-      xlab = "Acceso a Internet"
+      xlab = "Acceso a Internet",
       ylab = "Valor",
       col = "grey"
-    )
+    ) } else {
+      z = seq(-4,4, length.out = 1000)
+      plot(z,dnorm(z))
+    }
   })
   
 }
