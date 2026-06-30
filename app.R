@@ -13,42 +13,6 @@ base <- read_delim("student-por.csv",
 # UI del Dashboard
 ui <- dashboardPage(title = "Proyecto Shiny", 
                     skin = "yellow",
-                    dashboardHeader(
-                      title = "Proyecto test"
-                    ),
-                    
-                    dashboardSidebar(
-                      sidebarMenu(
-                        # Mantenemos el texto bonito para el usuario, pero simplificamos el tabName
-                        menuItem("Estudio y rendimiento académico", tabName = "estudio"),
-                        menuItem("Brecha digital en la educación", tabName = "brecha"),
-                        menuItem("Educación parental", tabName = "parental"),
-                        menuItem("Apoyo educativo", tabName = "apoyo"),
-                        menuItem("Parametros editables",
-                                 menuSubItem("Primer parametro global", tabName = "param1"),
-                                 menuSubItem("Segundo parametro global", tabName = "param2"),
-                                 menuSubItem("Tercer parametro global", tabName = "param3")
-                        )
-                      )
-                    ),
-                    
-                    dashboardBody(
-                      tabItems(
-                        # Conectamos con el tabName simplificado "parental"
-                        tabItem(tabName = "parental",
-                                fluidRow(
-                                  box(
-                                    plotOutput("plot_1", height = 250)
-                                  )
-                                )
-                        ),
-                        # Conectamos con el tabName simplificado "estudio"
-                        tabItem(tabName = "estudio",
-                                h2("prueba de texto")
-                        )
-                      )
-                    )
-)
 
   dashboardHeader(
     title = "Proyecto test"
@@ -57,14 +21,16 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   dashboardSidebar(
     sidebarMenu(
       menuItem(
-        "Estudio y rendimiento académico"
+        "Estudio y rendimiento académico", 
+        tabName = "estudio"
       ),
       menuItem(
         "Brecha digital en la educación", 
         tabName = "gráfico_2"
       ),
       menuItem(
-        "Educación parental", tabName = "grafico_3"
+        "Educación parental", 
+        tabName = "grafico_3"
       ),
       menuItem(
         "Apoyo educativo"
@@ -149,6 +115,13 @@ ui <- dashboardPage(title = "Proyecto Shiny",
            )
          )
         
+      ),
+      tabItem(tabName = "estudio",
+              fluidRow(
+                box(
+                  plotOutput("plot_1", height = 250)
+                )
+            )
       )
     )
   )
