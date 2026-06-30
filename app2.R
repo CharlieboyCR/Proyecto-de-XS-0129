@@ -10,7 +10,7 @@ base <- read_delim("student-por.csv",
 ui <- fluidPage(
   theme = shinytheme("cosmo"), 
   
-  titlePanel("Análisis de Calificaciones de Portugués y Soporte Institucional/Familiar"),
+  titlePanel("Análisis de calificaciones de Portugués con respecto a el apoyo escolar y familiar"),
   
   sidebarLayout(
     sidebarPanel(
@@ -18,9 +18,9 @@ ui <- fluidPage(
       hr(),
       
       radioButtons("variable_apoyo", 
-                   label = "Seleccione el tipo de soporte a analizar:",
-                   choices = c("Soporte Educativo Extra" = "schoolsup",
-                               "Soporte Familiar" = "famsup"),
+                   label = "Seleccione el tipo de apoyo a analizar:",
+                   choices = c("Apoyo escolar" = "schoolsup",
+                               "Apoyo familiar" = "famsup"),
                    selected = "schoolsup")
       
     
@@ -33,7 +33,7 @@ ui <- fluidPage(
         tabPanel("Tabla Resumen", 
                  br(),
                  tags$h3("Métricas Descriptivas de G3"),
-                 p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el soporte recibido:"),
+                 p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el apoyo recibido:"),
                  tableOutput("tabla_resumen")
         ),
         
@@ -58,11 +58,11 @@ server <- function(input, output) {
       group_by(Soporte = .data[[input$variable_apoyo]]) %>%
       summarise(
         `Total Estudiantes` = n(),
-        `Nota Media (G3)`   = round(mean(G3, na.rm = TRUE), 2),
-        `Nota Mediana (G3)` = median(G3, na.rm = TRUE),
-        `Desviación Estg.`  = round(sd(G3, na.rm = TRUE), 2)
+        `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
+        `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
+        `Desviación Estandar`  = round(sd(G3, na.rm = TRUE), 2)
       )
-  }, striped = TRUE, hover = TRUE, bordered = TRUE, align = 'c')
+  })
   
   
   output$boxplot_g3 <- renderPlot({
@@ -74,7 +74,7 @@ server <- function(input, output) {
         y = "Calificación Final (G3)"
       ) +
       theme_minimal() +
-      scale_fill_brewer(palette = "Set2") +
+      scale_fill_brewer(palette = "Set1") +
       theme(legend.position = "none", plot.title = element_text(face = "bold", size = 14))
   })
   
@@ -83,13 +83,13 @@ server <- function(input, output) {
     ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
       geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
       labs(
-        title = paste("Histograma de Frecuencias de G3 por", input$variable_apoyo),
+        title = paste("Histograma de Frecuencias de G3 por apoyo escolar", input$variable_apoyo),
         x = "Calificación Final (G3)",
         y = "Frecuencia Absoluta",
         fill = input$variable_apoyo
       ) +
       theme_minimal() +
-      scale_fill_brewer(palette = "Set2") +
+      scale_fill_brewer(palette = "Set1") +
       theme(plot.title = element_text(face = "bold", size = 14))
   })
 }
