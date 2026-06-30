@@ -79,7 +79,6 @@ shinyApp(ui = ui, server = server)
 
 student <- read_delim("student-por.csv", 
                           delim = ";", escape_double = FALSE, trim_ws = TRUE)
-View(student)
 
 # Resumen de las calificaciones (G3) por apoyo escolar (schoolsup)
 resumen_apoyo <- student %>%
@@ -93,7 +92,6 @@ resumen_apoyo <- student %>%
     Maximo = max(G3)
   )
 
-print(resumen_apoyo)
 
 
 
