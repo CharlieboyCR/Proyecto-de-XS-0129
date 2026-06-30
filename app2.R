@@ -69,7 +69,7 @@ server <- function(input, output) {
     ggplot(base, aes(x = .data[[input$variable_apoyo]], y = G3, fill = .data[[input$variable_apoyo]])) +
       geom_boxplot(alpha = 0.7, outlier.colour = "#891A1E", outlier.shape = 16) +
       labs(
-        title = paste("Distribución de G3 según", input$variable_apoyo),
+        title = paste("Distribución de G3 según tipo de apoyo ", input$variable_apoyo),
         x = paste("Recibe", input$variable_apoyo ),
         y = "Calificación Final (G3)"
       ) +
@@ -83,7 +83,7 @@ server <- function(input, output) {
     ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
       geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
       labs(
-        title = paste("Histograma de Frecuencias de G3 por apoyo escolar", input$variable_apoyo),
+        title = paste("Histograma de Frecuencias de G3 por tipo de apoyo", input$variable_apoyo),
         x = "Calificación Final (G3)",
         y = "Frecuencia Absoluta",
         fill = input$variable_apoyo
