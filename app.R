@@ -4,7 +4,7 @@ library(shiny)
 library(shinydashboard)
 library(tidyverse)
 library(readr)
-
+library(DT)
 # Dashboard
 base <- read_delim("student-por.csv", 
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
@@ -89,9 +89,14 @@ ui <- dashboardPage(title = "Proyecto Shiny",
           plotOutput("grafico_3", width = "800px", height = "500px")
       ),
     fluidRow(
-      box(width = 12,
-        h3("Podemos llegar a las siguientes concluciones viendo el gráfico de barras:"),
-        p(""))
+      box(style = "text-align:center",
+        width = 12,
+        h3("Podemos llegar a las siguientes concluciones:"),
+        p("..."),
+        h3("Tabla de frecuencias de educación parental"),
+        p("Podemos analizar el gráfico con la siguiente tabla de frecuencias"),
+        DTOutput("tabla_resumen_3"),
+            )
           )
         )
       )
@@ -185,6 +190,7 @@ server = function(input, output){
 
             
           } else {
+            
             ggplot(base, aes(x = Fedu, fill = higher)) +
               
               geom_bar(position = "fill")+
@@ -198,10 +204,103 @@ server = function(input, output){
                 legend.position = "bottom",
               )
             
+        }
+      
       }
       
-  }
-})
+}) ## TABLA 
+    output$tabla_resumen_3 <- renderDT({ 
+      
+      
+      Tabla_3 = if(input$Selector_madre_padre == "Madre"){
+        
+        if (input$Selector_genero == "Hombres") {
+          
+        base |> 
+            filter(base$sex == "M") |>
+            group_by(Medu, higher) |>
+            summarise(
+            Frecuencia = n()
+          ) |>
+            group_by(Medu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+            )
+        } else if(input$Selector_genero == "Mujeres") {
+          base |> 
+            filter(base$sex == "F") |>
+            group_by(Medu, higher) |>
+            summarise(
+              Frecuencia = n()
+            ) |>
+            group_by(Medu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+            )
+            
+        } else {
+          base |> 
+            group_by(Medu, higher) |>
+            summarise(
+              Frecuencia = n()
+            ) |>
+            group_by(Medu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+            )
+        }
+          
+      } else {
+        
+        if (input$Selector_genero == "Hombres"){
+          base |> 
+            filter(base$sex == "M") |>
+            group_by(Fedu, higher) |>
+            summarise(
+              Frecuencia = n()
+            ) |>
+            group_by(Fedu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+          )
+        } else if(input$Selector_genero == "Mujeres") {
+          
+          base |> 
+            filter(base$sex == "F") |>
+            group_by(Fedu, higher) |>
+            summarise(
+              Frecuencia = n()
+            ) |>
+            group_by(Fedu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+            )
+        } else {
+          base |>
+            group_by(Fedu, higher) |>
+            summarise(
+              Frecuencia = n()
+            ) |>
+            group_by(Fedu) |>
+            mutate(
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+            )
+          }
+        }
+      
+      datatable(
+        Tabla_3,
+        rownames = FALSE,
+        options = list(
+          dom = "t",
+          paging = FALSE,
+          searching = FALSE,
+          ordering = FALSE,
+          info = FALSE,
+          autoWidth = TRUE
+        )
+      )
+    })
 }
 
 shinyApp(ui = ui, server = server)
