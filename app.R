@@ -52,7 +52,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
         fluidRow(
         box(width = 12,
         h2("Aspiraciones de educación superior vs. educación parental"),
-        p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que planena continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes"),
+        p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que desean o no continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes"),
         p(style = "font-size:20px", "Los niveles de educación alcanzada por los padres, son los siguientes:"),
         div(style = "font-size:18px",
           p("0: No posee educación"),
@@ -91,10 +91,10 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     fluidRow(
       box(style = "text-align:center",
         width = 12,
-        h3("Podemos llegar a las siguientes concluciones:"),
-        p("..."),
+        h3("A partir del gráfico, visualmente se puede inferir"),
+        uiOutput("interpretacion_3"),
         h3("Tabla de frecuencias de educación parental"),
-        p("Podemos analizar el gráfico con la siguiente tabla de frecuencias"),
+        p(style = "font-size:18px", "Como complemento al gráfico, se presenta a continuación una tabla de frecuencias absolutas y relativas para observar y comprender lo que sucede con cada nivel de educación del madre o la padre hacia el estudiante referente si desea continuar o no con sus estududios superiores:"),
         DTOutput("tabla_resumen_3"),
             )
           )
@@ -118,7 +118,7 @@ server = function(input, output){
             
             labs(x= "Nivel educativo de la madre", y = "proporción")+
             
-            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                               labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
             theme(
               legend.position = "bottom"
@@ -134,7 +134,7 @@ server = function(input, output){
             
             labs(x= "Nivel educativo de la madre", y = "proporción")+
             
-            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                               labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
             theme(
               legend.position = "bottom"
@@ -149,7 +149,7 @@ server = function(input, output){
             
             labs(x= "Nivel educativo de la madre", y = "proporción")+
             
-            scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                               labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
             theme(
               legend.position = "bottom"
@@ -166,7 +166,7 @@ server = function(input, output){
               
               labs(x= "Nivel educativo de la madre", y = "proporción")+
               
-              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                                 labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
               theme(
                 legend.position = "bottom"
@@ -182,7 +182,7 @@ server = function(input, output){
               
               labs(x= "Nivel educativo de la madre", y = "proporción")+
               
-              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                                 labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
               theme(
                 legend.position = "bottom"
@@ -198,7 +198,7 @@ server = function(input, output){
               
               labs(x= "Nivel educativo de la madre", y = "proporción")+
               
-              scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
+              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
                                 labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
               theme(
                 legend.position = "bottom",
@@ -300,6 +300,64 @@ server = function(input, output){
           autoWidth = TRUE
         )
       )
+    })
+    
+    output$interpretacion_3 <- renderUI({
+      
+      if(input$Selector_madre_padre == "Madre"){
+        
+        if(input$Selector_genero == "Hombres"){
+          
+          p(
+            style = "font-size:18px;",
+            "Entre los estudiantes hombres, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores, se observa lo siguiente:
+            1)
+            "
+          )
+          
+        } else if(input$Selector_genero == "Mujeres"){
+          
+          p(
+            style = "font-size:18px;",
+            "Entre las estudiantes mujeres, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores."
+          )
+          
+        } else {
+          
+          p(
+            style = "font-size:18px;",
+            "Entre todos los estudiantes, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores."
+          )
+          
+        }
+        
+      } else {
+        
+        if(input$Selector_genero == "Hombres"){
+          
+          p(
+            style = "font-size:18px;",
+            "Entre los hombres, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
+          )
+          
+        } else if(input$Selector_genero == "Mujeres"){
+          
+          p(
+            style = "font-size:18px;",
+            "Entre las mujeres, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
+          )
+          
+        } else {
+          
+          p(
+            style = "font-size:18px;",
+            "Considerando ambos géneros, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
+          )
+          
+        }
+        
+      }
+      
     })
 }
 
