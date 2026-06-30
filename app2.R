@@ -19,12 +19,12 @@ ui <- fluidPage(
       
       radioButtons("variable_apoyo", 
                    label = "Seleccione el tipo de soporte a analizar:",
-                   choices = c("Soporte Educativo Extra (schoolsup)" = "schoolsup",
-                               "Soporte Familiar (famsup)" = "famsup"),
-                   selected = "schoolsup"),
+                   choices = c("Soporte Educativo Extra" = "schoolsup",
+                               "Soporte Familiar" = "famsup"),
+                   selected = "schoolsup")
       
-      hr(),
-      tags$small("Este panel analiza la influencia del soporte en la nota final (G3).")
+    
+      
     ),
     
     mainPanel(
@@ -67,10 +67,10 @@ server <- function(input, output) {
   
   output$boxplot_g3 <- renderPlot({
     ggplot(base, aes(x = .data[[input$variable_apoyo]], y = G3, fill = .data[[input$variable_apoyo]])) +
-      geom_boxplot(alpha = 0.7, outlier.colour = "red", outlier.shape = 16) +
+      geom_boxplot(alpha = 0.7, outlier.colour = "#891A1E", outlier.shape = 16) +
       labs(
         title = paste("Distribución de G3 según", input$variable_apoyo),
-        x = paste("¿Recibe", input$variable_apoyo, "?"),
+        x = paste("Recibe", input$variable_apoyo ),
         y = "Calificación Final (G3)"
       ) +
       theme_minimal() +
@@ -81,7 +81,7 @@ server <- function(input, output) {
   
   output$histograma_g3 <- renderPlot({
     ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
-      geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "white") +
+      geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
       labs(
         title = paste("Histograma de Frecuencias de G3 por", input$variable_apoyo),
         x = "Calificación Final (G3)",
