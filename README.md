@@ -14,7 +14,7 @@ Este proyecto consiste en el desarrollo de un tablero interactivo en R Shiny par
 -          Brecha digital y rendimiento académico.
 -          Aspiraciones de educación superior y educación parental.
 -          Efectividad del apoyo educativo adicional.
-La navegación de la aplicación se realiza mediante una barra lateral, donde el usuario selecciona el tema que desea explorar. Cada tema cuenta con filtros interactivos que permiten personalizar las visualizaciones y actualizar los resultados de forma dinámica y en tiempo real, facilitando la exploración y el análisis de los datos.
+Para visualizar el dashboard cargue el app.R. La navegación de la aplicación se realiza mediante una barra lateral, donde el usuario selecciona el tema que desea explorar. Cada tema cuenta con filtros interactivos que permiten personalizar las visualizaciones y actualizar los resultados de forma dinámica y en tiempo real, facilitando la exploración y el análisis de los datos.
 Los datos utilizados corresponden al Student Performance Dataset, desarrollado por Paulo Cortez y Alice Silva (2008). En este proyecto se utiliza el archivo student-por.csv, obtenido a través de Kaggle, el cual contiene información de 649 estudiantes y 33 variables sin ningún valor faltante.
 
 Referencia:
