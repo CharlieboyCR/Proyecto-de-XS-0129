@@ -46,6 +46,10 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   ),
   
   dashboardBody(
+    tags$style(HTML(
+      "table.dataTable{font-size:16px}")
+      ),
+    
     tabItems(
       tabItem(
         tabName = "grafico_3",
@@ -53,14 +57,6 @@ ui <- dashboardPage(title = "Proyecto Shiny",
         box(width = 12,
         h2("Aspiraciones de educación superior vs. educación parental"),
         p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que desean o no continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes"),
-        p(style = "font-size:20px", "Los niveles de educación alcanzada por los padres, son los siguientes:"),
-        div(style = "font-size:18px",
-          p("0: No posee educación"),
-          p("1: Educación primeria (hasta 4to grado) completada"),
-          p("2: De 5to grado a 9no grado completos"),
-          p("3: educación secundaria completada"),
-          p("4: educación superior completada")
-        ),
         
         div(style = "font-size:20px; text-align:center",
             
@@ -91,8 +87,6 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     fluidRow(
       box(style = "text-align:center",
         width = 12,
-        h3("A partir del gráfico, visualmente se puede inferir"),
-        uiOutput("interpretacion_3"),
         h3("Tabla de frecuencias de educación parental"),
         p(style = "font-size:18px", "Como complemento al gráfico, se presenta a continuación una tabla de frecuencias absolutas y relativas para observar y comprender lo que sucede con cada nivel de educación del madre o la padre hacia el estudiante referente si desea continuar o no con sus estududios superiores:"),
         DTOutput("tabla_resumen_3"),
@@ -103,112 +97,107 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     )
   )
 )
+
+tema_grafico <- theme_classic() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 13),
+    axis.title = element_text(size = 15),
+    axis.text = element_text(size = 12)
+  )
+
+niveles <- c(
+  "0" = "Sin\neducación",
+  "1" = "Primaria",
+  "2" = "5°-9°",
+  "3" = "Secundaria",
+  "4" = "Superior"
+)
+
+colores <- c(
+  "yes"="#2C7FB8",
+  "no"="#BDBDBD"
+)
+
+grafico_base <- list(
+  geom_bar(position="fill"),
+  scale_x_discrete(labels=niveles),
+  scale_fill_manual(
+    values=colores,
+    labels=c("Sí","No"),
+    name="¿Desea cursar estudios superiores?"
+  ),
+  tema_grafico
+)
 # Servidor
 server = function(input, output){
 
-    output$grafico_3 <- renderPlot({
+  output$grafico_3 <- renderPlot({
+    
+    if(input$Selector_madre_padre == "Madre"){
       
-      if(input$Selector_madre_padre == "Madre"){
+      if (input$Selector_genero == "Hombres") {
         
-        if (input$Selector_genero == "Hombres") {
+        ggplot(base |> filter(sex == "M"), aes(x = factor(Medu), fill = higher)) +
           
-          ggplot(base |> filter(sex == "M"), aes(x = Medu, fill = higher)) +
-            
-            geom_bar(position = "fill") +
-            
-            labs(x= "Nivel educativo de la madre", y = "proporción")+
-            
-            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-            theme(
-              legend.position = "bottom"
-            )
-            
+          grafico_base +
           
-        } else if (input$Selector_genero == "Mujeres") {
+          labs(x= "Nivel educativo de la madre", y = "proporción")
           
-          ggplot(base |> filter(sex == "F"), aes(x = Medu, fill = higher)) +
-            
-            geom_bar(position = "fill")+
-            
-            
-            labs(x= "Nivel educativo de la madre", y = "proporción")+
-            
-            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-            theme(
-              legend.position = "bottom"
-            )
+        
+      } else if (input$Selector_genero == "Mujeres") {
+        
+        ggplot(base |> filter(sex == "F"), aes(x = factor(Medu), fill = higher)) +
           
-        } else {
+          grafico_base +
           
-          ggplot(base, aes(x = Medu, fill = higher)) +
-            
-            geom_bar(position = "fill")+
-            
-            
-            labs(x= "Nivel educativo de la madre", y = "proporción")+
-            
-            scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                              labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-            theme(
-              legend.position = "bottom"
-            )
-        }
+          labs(x= "Nivel educativo de la madre", y = "proporción")
+          
         
       } else {
+        
+        ggplot(base, aes(x = factor(Medu), fill = higher)) +
           
-          if (input$Selector_genero == "Hombres") {
-            
-            ggplot(base |> filter(sex == "M"), aes(x = Fedu, fill = higher)) +
-              
-              geom_bar(position = "fill")+
-              
-              labs(x= "Nivel educativo de la madre", y = "proporción")+
-              
-              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-              theme(
-                legend.position = "bottom"
-              )
-            
-            
-          } else if (input$Selector_genero == "Mujeres"){
-            
-            ggplot(base |> filter(sex == "F"), aes(x = Fedu, fill = higher)) +
-              
-              geom_bar(position = "fill")+
-              
-              
-              labs(x= "Nivel educativo de la madre", y = "proporción")+
-              
-              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-              theme(
-                legend.position = "bottom"
-              )
-
-            
-          } else {
-            
-            ggplot(base, aes(x = Fedu, fill = higher)) +
-              
-              geom_bar(position = "fill")+
-              
-              
-              labs(x= "Nivel educativo de la madre", y = "proporción")+
-              
-              scale_fill_manual(values = c("yes" = "#2C7FB8", "no" = "#BDBDBD"),
-                                labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-              theme(
-                legend.position = "bottom",
-              )
-            
-        }
-      
+          grafico_base +
+          
+          labs(x= "Nivel educativo de la madre", y = "proporción")
+          
       }
       
-}) ## TABLA 
+    } else {
+      
+      if (input$Selector_genero == "Hombres") {
+        
+        ggplot(base |> filter(sex == "M"), aes(x = factor(Fedu), fill = higher)) +
+          
+          grafico_base +
+          
+          labs(x= "Nivel educativo del padre", y = "proporción")
+          
+        
+      } else if (input$Selector_genero == "Mujeres"){
+        
+        ggplot(base |> filter(sex == "F"), aes(x = factor(Fedu), fill = higher)) +
+          
+          grafico_base +
+          
+          labs(x= "Nivel educativo del padre", y = "proporción")
+        
+        
+      } else {
+        
+        ggplot(base, aes(x = factor(Fedu), fill = higher)) +
+          
+          grafico_base +
+          
+          labs(x= "Nivel educativo del padre", y = "proporción")
+        
+      }
+      
+    }
+    
+  }) ## TABLA 
     output$tabla_resumen_3 <- renderDT({ 
       
       
@@ -301,65 +290,6 @@ server = function(input, output){
         )
       )
     })
-    
-    output$interpretacion_3 <- renderUI({
-      
-      if(input$Selector_madre_padre == "Madre"){
-        
-        if(input$Selector_genero == "Hombres"){
-          
-          p(
-            style = "font-size:18px;",
-            "Entre los estudiantes hombres, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores, se observa lo siguiente:
-            1)
-            "
-          )
-          
-        } else if(input$Selector_genero == "Mujeres"){
-          
-          p(
-            style = "font-size:18px;",
-            "Entre las estudiantes mujeres, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores."
-          )
-          
-        } else {
-          
-          p(
-            style = "font-size:18px;",
-            "Entre todos los estudiantes, el gráfico muestra la relación entre el nivel educativo de la madre y la intención de cursar estudios superiores."
-          )
-          
-        }
-        
-      } else {
-        
-        if(input$Selector_genero == "Hombres"){
-          
-          p(
-            style = "font-size:18px;",
-            "Entre los hombres, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
-          )
-          
-        } else if(input$Selector_genero == "Mujeres"){
-          
-          p(
-            style = "font-size:18px;",
-            "Entre las mujeres, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
-          )
-          
-        } else {
-          
-          p(
-            style = "font-size:18px;",
-            "Considerando ambos géneros, el gráfico muestra la relación entre el nivel educativo del padre y la intención de cursar estudios superiores."
-          )
-          
-        }
-        
-      }
-      
-    })
 }
-
 shinyApp(ui = ui, server = server)
 
