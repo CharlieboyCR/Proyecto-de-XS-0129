@@ -32,7 +32,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
         condition = "input.tabs == 'grafico_3'",
         radioButtons(
           "Selector_madre_padre",
-          "Seleccione el padre",
+          "Seleccione el progenitor",
           choices = c(
             "Madre",
             "Padre"
@@ -78,7 +78,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     fluidRow(
         box(width = 4,
         h2("Aspiraciones de educación superior vs. educación parental"),
-        p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que desean o no continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes")
+        p(style = "font-size:20px", "El siguiente gráfico de barras muestra las proporciones de los estudiantes si tienen intención de cursar sus estudios superiores y cómo se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes.")
         ),
       box(width = 8,
           align = "center",
@@ -88,8 +88,8 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     fluidRow(
       box(style = "text-align:center",
         width = 12,
-        h3("Tabla de frecuencias de educación parental"),
-        p(style = "font-size:18px", "Como complemento al gráfico, se presenta a continuación una tabla de frecuencias absolutas y relativas para observar y comprender lo que sucede con cada nivel de educación del madre o la padre hacia el estudiante referente si desea continuar o no con sus estududios superiores:"),
+        h3("Tabla resumen de frecuencias y proporciones según nivel educativo parental"),
+        p(style = "font-size:18px", "Como complemento al gráfico, se presenta a continuación una tabla de frecuencias absolutas y relativas de los estudiantes que desean o no continuar con estudios superiores, según cada nivel educativo alcanzado por la madre o del padre. Esta información facilita la interpretación de las proporciones observadas en el gráfico:"),
         DTOutput("tabla_resumen_3")
             )
           )
@@ -143,7 +143,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo de la madre", y = "proporción")
+          labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
           
         
       } else if (input$Selector_genero == "Mujeres") {
@@ -152,7 +152,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo de la madre", y = "proporción")
+          labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
           
         
       } else {
@@ -161,7 +161,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo de la madre", y = "proporción")
+          labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
           
       }
       
@@ -173,7 +173,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo del padre", y = "proporción")
+          labs(x= "Nivel educativo del padre", y = "Proporción de estudiantes")
           
         
       } else if (input$Selector_genero == "Mujeres"){
@@ -182,7 +182,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo del padre", y = "proporción")
+          labs(x= "Nivel educativo del padre", y = "Proporción de estudiantes")
         
         
       } else {
@@ -191,7 +191,7 @@ server = function(input, output){
           
           grafico_base +
           
-          labs(x= "Nivel educativo del padre", y = "proporción")
+          labs(x= "Nivel educativo del padre", y = "Proporción de estudiantes")
         
       }
       
@@ -214,7 +214,7 @@ server = function(input, output){
           ) |>
             group_by(Medu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
             )
         } else if(input$Selector_genero == "Mujeres") {
           base |> 
@@ -226,7 +226,7 @@ server = function(input, output){
             ) |>
             group_by(Medu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
             )
             
         } else {
@@ -238,7 +238,7 @@ server = function(input, output){
             ) |>
             group_by(Medu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
             )
         }
           
@@ -254,7 +254,7 @@ server = function(input, output){
             ) |>
             group_by(Fedu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
           )
         } else if(input$Selector_genero == "Mujeres") {
           
@@ -267,7 +267,7 @@ server = function(input, output){
             ) |>
             group_by(Fedu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
             )
         } else {
           base |>
@@ -278,7 +278,7 @@ server = function(input, output){
             ) |>
             group_by(Fedu) |>
             mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,3)
+              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
             )
           }
         }
