@@ -137,9 +137,21 @@ grafico_base <- list(
   tema_grafico
 )
 
-# Servidor
-server = function(input, output){
+#server original
 
+server <- function(input, output, session) {
+  
+  # Tabla Resumen 
+  output$tabla_resumen <- renderTable({
+    base %>%
+      group_by(Soporte = .data[[input$variable_apoyo]]) %>%
+      summarise(
+        `Total Estudiantes` = n(),
+        `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
+        `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
+        `Desviación Estándar`   = round(sd(G3, na.rm = TRUE), 2)
+      )})
+  
   output$grafico_3 <- renderPlot({
     
     if(input$Selector_madre_padre == "Madre"){
@@ -151,7 +163,7 @@ server = function(input, output){
           grafico_base +
           
           labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
-          
+        
         
       } else if (input$Selector_genero == "Mujeres") {
         
@@ -160,7 +172,7 @@ server = function(input, output){
           grafico_base +
           
           labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
-          
+        
         
       } else {
         
@@ -169,7 +181,7 @@ server = function(input, output){
           grafico_base +
           
           labs(x= "Nivel educativo de la madre", y = "Proporción de estudiantes")
-          
+        
       }
       
     } else {
@@ -181,7 +193,7 @@ server = function(input, output){
           grafico_base +
           
           labs(x= "Nivel educativo del padre", y = "Proporción de estudiantes")
-          
+        
         
       } else if (input$Selector_genero == "Mujeres"){
         
@@ -205,201 +217,104 @@ server = function(input, output){
     }
     
   }) ## TABLA 
-    output$tabla_resumen_3 <- renderDT({ 
+  output$tabla_resumen_3 <- renderDT({ 
+    
+    
+    Tabla_3 = if(input$Selector_madre_padre == "Madre"){
       
-      
-      Tabla_3 = if(input$Selector_madre_padre == "Madre"){
+      if (input$Selector_genero == "Hombres") {
         
-        if (input$Selector_genero == "Hombres") {
-          
         base |> 
-            filter(base$sex == "M") |>
-            group_by(Medu, higher) |>
-            summarise(
+          filter(base$sex == "M") |>
+          group_by(Medu, higher) |>
+          summarise(
             Frecuencia = n(),
             .groups = "drop"
           ) |>
-            group_by(Medu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
-            )
-        } else if(input$Selector_genero == "Mujeres") {
-          base |> 
-            filter(base$sex == "F") |>
-            group_by(Medu, higher) |>
-            summarise(
-              Frecuencia = n(),
-              .groups = "drop"
-            ) |>
-            group_by(Medu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
-            )
-            
-        } else {
-          base |> 
-            group_by(Medu, higher) |>
-            summarise(
-              Frecuencia = n(),
-              .groups = "drop"
-            ) |>
-            group_by(Medu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
-            )
-        }
-          
-      } else {
-        
-        if (input$Selector_genero == "Hombres"){
-          base |> 
-            filter(base$sex == "M") |>
-            group_by(Fedu, higher) |>
-            summarise(
-              Frecuencia = n(),
-              .groups = "drop"
-            ) |>
-            group_by(Fedu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          group_by(Medu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
           )
-        } else if(input$Selector_genero == "Mujeres") {
-          
-          base |> 
-            filter(base$sex == "F") |>
-            group_by(Fedu, higher) |>
-            summarise(
-              Frecuencia = n(),
-              .groups = "drop"
-            ) |>
-            group_by(Fedu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
-            )
-        } else {
-          base |>
-            group_by(Fedu, higher) |>
-            summarise(
-              Frecuencia = n(),
-              .groups = "drop"
-            ) |>
-            group_by(Fedu) |>
-            mutate(
-              Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
-            )
-          }
-        }
+      } else if(input$Selector_genero == "Mujeres") {
+        base |> 
+          filter(base$sex == "F") |>
+          group_by(Medu, higher) |>
+          summarise(
+            Frecuencia = n(),
+            .groups = "drop"
+          ) |>
+          group_by(Medu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          )
+        
+      } else {
+        base |> 
+          group_by(Medu, higher) |>
+          summarise(
+            Frecuencia = n(),
+            .groups = "drop"
+          ) |>
+          group_by(Medu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          )
+      }
       
-      datatable(
-        Tabla_3,
-        rownames = FALSE,
-        options = list(
-          dom = "t",
-          paging = FALSE,
-          searching = FALSE,
-          ordering = FALSE,
-          info = FALSE,
-          autoWidth = TRUE
-        )
-      )
-    })
-}
-        tabName = "grafico_2", 
-        h2("Brecha digital en la educación"),
-        box(
-          width = 12,
-          radioButtons(
-            inputId = "tipoGrafico",
-            label = "Tipo Análisis",
-            choices = c("Análisis Formal" = "Formal", "Análisis Visual" = "Visual"),
-            selected = "Visual",
-            inline = TRUE
-          ),
-          conditionalPanel(
-            condition = "input.tipoGrafico == 'Formal'",
-            checkboxInput(
-              inputId = "Limpio",
-              label = "Eliminar los valores extremos"
-            ), 
-            sliderInput(
-              inputId = "alpha",
-              label = "Nivel de significancia",
-              min = 0.01,
-              max = 0.2,
-              value = 0.05
-            )
-          ),
-          plotOutput("grafico")
-        )
-      ),
+    } else {
       
-      # 3. Pestaña Educación Parental
-      tabItem(tabName = "grafico_3",
-              h2("Educación parental"),
-              p("Contenido en desarrollo...")
-      ),
-      
-      # 4. Pestaña Apoyo Educativo (MODIFICADA)
-      tabItem(tabName = "apoyo_educativo",
-              fluidRow(
-                # NUEVO: Caja para los parámetros de apoyo
-                box(
-                  title = "Parámetros",
-                  width = 3, # Toma 3 de las 12 columnas disponibles
-                  status = "warning",
-                  solidHeader = TRUE,
-                  radioButtons("variable_apoyo", 
-                               label = "Tipo de apoyo:",
-                               choices = c("Apoyo escolar" = "schoolsup",
-                                           "Apoyo familiar" = "famsup"),
-                               selected = "schoolsup")
-                ),
-                
-                # Caja principal con los resultados
-                box(
-                  title = "Análisis de calificaciones de Portugués", 
-                  width = 9, # Toma las 9 columnas restantes
-                  status = "primary", 
-                  solidHeader = TRUE,
-                  
-                  tabBox(
-                    title = "Resultados",
-                    id = "tabset_resultados", 
-                    width = 12,
-                    
-                    tabPanel("Tabla Resumen", 
-                             br(),
-                             tags$h3("Métricas Descriptivas de G3"),
-                             p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el apoyo recibido:"),
-                             tableOutput("tabla_resumen")
-                    ),
-                    
-                    tabPanel("Gráficos de Distribución", 
-                             br(),
-                             plotOutput("boxplot_g3"),
-                             br(),
-                             plotOutput("histograma_g3")
-                    )
-                  )
-                )
-              )
+      if (input$Selector_genero == "Hombres"){
+        base |> 
+          filter(base$sex == "M") |>
+          group_by(Fedu, higher) |>
+          summarise(
+            Frecuencia = n(),
+            .groups = "drop"
+          ) |>
+          group_by(Fedu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          )
+      } else if(input$Selector_genero == "Mujeres") {
+        
+        base |> 
+          filter(base$sex == "F") |>
+          group_by(Fedu, higher) |>
+          summarise(
+            Frecuencia = n(),
+            .groups = "drop"
+          ) |>
+          group_by(Fedu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          )
+      } else {
+        base |>
+          group_by(Fedu, higher) |>
+          summarise(
+            Frecuencia = n(),
+            .groups = "drop"
+          ) |>
+          group_by(Fedu) |>
+          mutate(
+            Proporcion = round(Frecuencia/sum(Frecuencia)*100,2)
+          )
+      }
+    }
+    
+    datatable(
+      Tabla_3,
+      rownames = FALSE,
+      options = list(
+        dom = "t",
+        paging = FALSE,
+        searching = FALSE,
+        ordering = FALSE,
+        info = FALSE,
+        autoWidth = TRUE
       )
     )
-  )
-)
-
-server <- function(input, output, session) {
-  
-  # Tabla Resumen 
-  output$tabla_resumen <- renderTable({
-    base %>%
-      group_by(Soporte = .data[[input$variable_apoyo]]) %>%
-      summarise(
-        `Total Estudiantes` = n(),
-        `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
-        `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
-        `Desviación Estándar`   = round(sd(G3, na.rm = TRUE), 2)
-      )})
+  })
     
   output$grafico <- renderPlot ({
     if(input$tipoGrafico == "Visual") {
