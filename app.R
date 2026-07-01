@@ -1,75 +1,98 @@
-# Librerias 
-
 library(shiny)
-library(shinydashboard)
-library(tidyverse)
-library(readr)
-library(DT)
+library(shinythemes)
+library(dplyr)
+library(ggplot2)
 
-base <- read_delim("~/Proyecto-de-XS-0129/student-por.csv", 
+
+base <- read_delim("student-por.csv", 
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
-# Dashboard
-ui <- dashboardPage(title = "Proyecto Shiny", 
-                    skin = "yellow",
-  dashboardHeader(
-    title = "Proyecto test"
-  ),
+
+ui <- fluidPage(
+  theme = shinytheme("cosmo"), 
   
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem(
-        "Estudio y rendimiento académico"
-      ),
-      menuItem(
-        "Brecha digital en la educación"
-      ),
-      menuItem(
-        "Educación parental"
-      ),
-      menuItem(
-        "Apoyo educativo"
-      ),
-      menuItem(
-        "Parametros editables",
-        menuSubItem(
-          "Primer parametro global"
+  titlePanel("Análisis de calificaciones de Portugués con respecto a el apoyo escolar y familiar"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      tags$h4("Filtros de Análisis"),
+      hr(),
+      
+      radioButtons("variable_apoyo", 
+                   label = "Seleccione el tipo de apoyo a analizar:",
+                   choices = c("Apoyo escolar" = "schoolsup",
+                               "Apoyo familiar" = "famsup"),
+                   selected = "schoolsup")
+      
+    
+      
+    ),
+    
+    mainPanel(
+      tabsetPanel(
+       
+        tabPanel("Tabla Resumen", 
+                 br(),
+                 tags$h3("Métricas Descriptivas de G3"),
+                 p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el apoyo recibido:"),
+                 tableOutput("tabla_resumen")
         ),
-        menuSubItem(
-          "Segundo parametro global"
-        ),
-        menuSubItem(
-          "Tercer parametro global"
+        
+        
+        tabPanel("Gráficos de Distribución", 
+                 br(),
+                 plotOutput("boxplot_g3"),
+                 br(),
+                 plotOutput("histograma_g3")
         )
       )
     )
-  ),
-  
-  dashboardBody(
-    
-    box(
-      plotOutput("plot_4", height = 400)
-    )
-    
   )
 )
+
+
+server <- function(input, output) {
   
-  
-# Servidor
-server = function(input, output){
-  output$plot_4 <- renderPlot({
-    ggplot(base, aes(x = schoolsup, y = G3, fill = schoolsup)) +
-      geom_boxplot(alpha = 0.7, outlier.shape = NA) + 
-      geom_jitter(width = 0.2, alpha = 0.3, color = "black") + 
-      scale_fill_manual(values = c("orange", "lightblue"), labels = c("No recibe apoyo", "Recibe apoyo")) +
-      labs(
-        title = "Distribución de Calificaciones Finales (G3)",
-        subtitle = "Comparativa según recepción de apoyo educativo extra",
-        x = "Apoyo educativo extra",
-        y = "Calificación Final (G3)",
-        fill = "Grupo"
+
+  output$tabla_resumen <- renderTable({
+    base %>%
+      group_by(Soporte = .data[[input$variable_apoyo]]) %>%
+      summarise(
+        `Total Estudiantes` = n(),
+        `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
+        `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
+        `Desviación Estandar`  = round(sd(G3, na.rm = TRUE), 2)
       )
+  })
+  
+  
+  output$boxplot_g3 <- renderPlot({
+    ggplot(base, aes(x = .data[[input$variable_apoyo]], y = G3, fill = .data[[input$variable_apoyo]])) +
+      geom_boxplot(alpha = 0.7, outlier.colour = "#891A1E", outlier.shape = 16) +
+      labs(
+        title = paste("Distribución de G3 según tipo de apoyo ", input$variable_apoyo),
+        x = paste("Recibe", input$variable_apoyo ),
+        y = "Calificación Final (G3)"
+      ) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Set1") +
+      theme(legend.position = "none", plot.title = element_text(face = "bold", size = 14))
+  })
+  
+  
+  output$histograma_g3 <- renderPlot({
+    ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
+      geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
+      labs(
+        title = paste("Histograma de Frecuencias de G3 por tipo de apoyo", input$variable_apoyo),
+        x = "Calificación Final (G3)",
+        y = "Frecuencia Absoluta",
+        fill = input$variable_apoyo
+      ) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Set1") +
+      theme(plot.title = element_text(face = "bold", size = 14))
   })
 }
 
-
+# Desplegar la aplicación
 shinyApp(ui = ui, server = server)
