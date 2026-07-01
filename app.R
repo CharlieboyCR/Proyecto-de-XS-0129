@@ -19,7 +19,6 @@ ui <- dashboardPage(
   
   dashboardSidebar(
     sidebarMenu(
-      id = "tabs", 
       menuItem(
         "Estudio y rendimiento académico", 
         tabName = "estudio"
@@ -45,24 +44,26 @@ ui <- dashboardPage(
                               choices = c("Apoyo escolar" = "schoolsup",
                                           "Apoyo familiar" = "famsup"),
                               selected = "schoolsup")
-        ),
-        menuSubItem(
-          "Segundo parámetro global"
-        ),
-        menuSubItem(
-          "Tercer parámetro global"
         )
       )
     )
   ),
   
   dashboardBody(
-    tabItems(      
+    tabItems(
+      
+      # 1. Pestaña Estudio (CORREGIDA: Ahora cierra correctamente)
       tabItem(tabName = "estudio",
               h2("Estudio y rendimiento académico"),
-              p("Contenido en desarrollo..."),
+              fluidRow(
+                box(
+                  plotOutput("plot_1", height = 500)
+                )
+      )),
+      
+      # 2. Pestaña Brecha Digital (CORREGIDA: Sin tilde en "grafico_2" y ya no está anidada ni duplicada)
       tabItem(
-        tabName = "gráfico_2",
+        tabName = "grafico_2", 
         h2("Brecha digital en la educación"),
         box(
           width = 12,
@@ -75,30 +76,29 @@ ui <- dashboardPage(
           ),
           conditionalPanel(
             condition = "input.tipoGrafico == 'Formal'",
-          checkboxInput(
-            inputId = "Limpio",
+            checkboxInput(
+              inputId = "Limpio",
               label = "Eliminar los valores extremos"
-          ), 
-          sliderInput(
-            inputId = "alpha",
+            ), 
+            sliderInput(
+              inputId = "alpha",
               label = "Nivel de significancia",
               min = 0.01,
               max = 0.2,
-              value = 0.05,
-          )),
+              value = 0.05
+            )
+          ),
           plotOutput("grafico")
         )
       ),
-      tabItem(tabName = "grafico_2",
-              h2("Brecha digital en la educación"),
-              p("Contenido en desarrollo...")
-      ),
+      
+      # 3. Pestaña Educación Parental
       tabItem(tabName = "grafico_3",
               h2("Educación parental"),
               p("Contenido en desarrollo...")
       ),
       
-      # Pestaña para apoyo educativo
+      # 4. Pestaña Apoyo Educativo
       tabItem(tabName = "apoyo_educativo",
               fluidRow(
                 box(
@@ -133,7 +133,6 @@ ui <- dashboardPage(
   )
 )
 
-
 server <- function(input, output, session) {
   
   # Tabla Resumen 
@@ -145,7 +144,7 @@ server <- function(input, output, session) {
         `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
         `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
         `Desviación Estándar`   = round(sd(G3, na.rm = TRUE), 2)
-      )
+      )})
     
   output$grafico <- renderPlot ({
     if(input$tipoGrafico == "Visual") {
@@ -239,6 +238,18 @@ server <- function(input, output, session) {
       theme_minimal() +
       scale_fill_brewer(palette = "Set1") +
       theme(legend.position = "none", plot.title = element_text(face = "bold", size = 14))
+  })
+  
+  #Gráfico de dispersión
+  output$plot_1 <- renderPlot({
+    ggplot(data = base, aes(x = absences, y = G3, 
+                            color = case_when(G3 <= 9 ~ "Desempeño insuficiente", 
+                                              G3 < 13 ~ "Satisfactorio", 
+                                              G3 < 17 ~ "Bueno", 
+                                              G3 >= 17 ~ "Excelente"))) + 
+      geom_point() + 
+      labs(color = "Categoría") + 
+      geom_smooth(method = "lm", se = FALSE)
   })
   
   # Histograma 
