@@ -147,30 +147,13 @@ ui <- dashboardPage(title = "Proyecto Shiny",
 server = function(input, output){
   output$grafico <- renderPlot ({
     if(input$tipoGrafico == "Visual") {
-      if(input$Limpio){
-        Datos_Limpios2 <- base %>% 
-          mutate(Q1 = quantile(base$G3, 0.25) ,
-                 Q3 = quantile(base$G3, 0.75),
-                 IQR = Q3-Q1,
-                 lim_inf = Q1- IQR *1.5 , 
-                 lim_sup = Q3 + IQR *1.5) %>% 
-          filter(between(G3, lim_inf, lim_sup))
-        boxplot(
-          Datos_Limpios2$G3~Datos_Limpios2$internet,
-          main = "Brecha en la educación",
-          xlab = "Acceso a Internet",
-          ylab = "Valor",
-          col = "grey"
-        )
-      } else {
         boxplot(
         base$G3~base$internet,
         main = "Brecha en la educación",
         xlab = "Acceso a Internet",
         ylab = "Valor",
         col = "grey"
-      )}
-     } else {
+      )} else {
         if(input$Limpio){
         Datos_Limpios2 <- base %>% 
           mutate(Q1 = quantile(base$G3, 0.25) ,
