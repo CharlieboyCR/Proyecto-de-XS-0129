@@ -18,6 +18,7 @@ ui <- dashboardPage(title = "Proyecto Shiny",
   
   dashboardSidebar(
     sidebarMenu(
+      id = "tabs",
       menuItem(
         "Estudio y rendimiento académico"
       ),
@@ -26,6 +27,28 @@ ui <- dashboardPage(title = "Proyecto Shiny",
       ),
       menuItem(
         "Educación parental", tabName = "grafico_3"
+      ),
+      conditionalPanel(
+        condition = "input.tabs == 'grafico_3'",
+        radioButtons(
+          "Selector_madre_padre",
+          "Seleccione el padre",
+          choices = c(
+            "Madre",
+            "Padre"
+          )
+        ),
+        
+        radioButtons(
+          "Selector_genero",
+          "Seleccione el género",
+          choices = c(
+            "Ambos",
+            "Hombres",
+            "Mujeres"
+          ),
+          selected = "Ambos"
+        )
       ),
       menuItem(
         "Apoyo educativo"
@@ -44,7 +67,6 @@ ui <- dashboardPage(title = "Proyecto Shiny",
       )
     )
   ),
-  
   dashboardBody(
     tags$style(HTML(
       "table.dataTable{font-size:16px}")
@@ -53,51 +75,28 @@ ui <- dashboardPage(title = "Proyecto Shiny",
     tabItems(
       tabItem(
         tabName = "grafico_3",
-        fluidRow(
-        box(width = 12,
-        h2("Aspiraciones de educación superior vs. educación parental"),
-        p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que desean o no continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes"),
-        
-        div(style = "font-size:20px; text-align:center",
-            
-          radioButtons(
-            inputId = "Selector_madre_padre", 
-            label = "Escoja uno de los padres para ser representado en el gráfico",
-            choices = c(
-              "Madre" = "Madre", "Padre" = "Padre")
-          ),
-          
-          radioButtons(
-            inputId = "Selector_genero",
-            label = "Seleccione un genero",
-            choices = c(
-              "Ambos" = "Ambos",
-              "Hombres" = "Hombres",
-              "Mujeres" = "Mujeres"
-            )
-          )
-        )
-      )
-    ),
     fluidRow(
-      box(width = 12,
+        box(width = 4,
+        h2("Aspiraciones de educación superior vs. educación parental"),
+        p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que desean o no continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes")
+        ),
+      box(width = 8,
           align = "center",
-          plotOutput("grafico_3", width = "800px", height = "500px")
+          plotOutput("grafico_3", height = "500px")
+        )
       ),
     fluidRow(
       box(style = "text-align:center",
         width = 12,
         h3("Tabla de frecuencias de educación parental"),
         p(style = "font-size:18px", "Como complemento al gráfico, se presenta a continuación una tabla de frecuencias absolutas y relativas para observar y comprender lo que sucede con cada nivel de educación del madre o la padre hacia el estudiante referente si desea continuar o no con sus estududios superiores:"),
-        DTOutput("tabla_resumen_3"),
+        DTOutput("tabla_resumen_3")
             )
           )
-        )
       )
     )
   )
 )
-
 tema_grafico <- theme_classic() +
   theme(
     legend.position = "bottom",
@@ -130,6 +129,7 @@ grafico_base <- list(
   ),
   tema_grafico
 )
+
 # Servidor
 server = function(input, output){
 
