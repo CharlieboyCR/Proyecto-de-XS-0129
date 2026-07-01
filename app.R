@@ -68,7 +68,33 @@ ui <- dashboardPage(
       ),
     
     tabItems(
-      
+      tabItem(
+        tabName = "grafico_2", 
+        h2("Brecha digital en la educación"),
+        box(
+          width = 12,
+          radioButtons(
+            inputId = "tipoGrafico",
+            label = "Tipo Análisis",
+            choices = c("Análisis Formal" = "Formal", "Análisis Visual" = "Visual"),
+            selected = "Visual",
+            inline = TRUE
+          ),
+          conditionalPanel(
+            condition = "input.tipoGrafico == 'Formal'",  checkboxInput(
+              inputId = "Limpio",
+      label = "Eliminar los valores extremos")
+          , 
+      sliderInput(
+        inputId = "alpha",
+        label = "Nivel de significancia",
+        min = 0.01,
+        max = 0.2,
+        value = 0.05
+      )
+        )),
+      plotOutput("grafico")
+      ),
       # 1. Pestaña Estudio
       tabItem(tabName = "estudio",
               h2("Rendimiento académico y asistencias a clases"),
@@ -100,10 +126,53 @@ ui <- dashboardPage(
         DTOutput("tabla_resumen_3")
             )
           )
-      )
+      ),
+    tabItem(
+      tabName = "apoyo_educativo",
+            fluidRow(
+              box(
+                title = "Parámetros",
+                width = 3, # Toma 3 de las 12 columnas disponibles
+                status = "warning",
+                solidHeader = TRUE,
+                radioButtons("variable_apoyo", 
+                             label = "Tipo de apoyo:",
+                             choices = c("Apoyo escolar" = "schoolsup",
+                                         "Apoyo familiar" = "famsup"),
+                             selected = "schoolsup")
+              ),
+              box(title = "Análisis de calificaciones de Portugués", 
+                  width = 9, # Toma las 9 columnas restantes
+                  status = "primary", 
+                  solidHeader = TRUE,
+                  
+                  tabBox(
+                    title = "Resultados",
+                    id = "tabset_resultados", 
+                    width = 12,
+                    
+                    tabPanel("Tabla Resumen", 
+                             br(),
+                             tags$h3("Métricas Descriptivas de G3"),
+                             p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el apoyo recibido:"),
+                             tableOutput("tabla_resumen")
+                    ),
+                    
+                    tabPanel("Gráficos de Distribución", 
+                             br(),
+                             plotOutput("boxplot_g3"),
+                             br(),
+                             plotOutput("histograma_g3")
+                    )
+                  )
+              )
+            )
+    )
     )
   )
 )
+
+
 tema_grafico <- theme_classic() +
   theme(
     legend.position = "bottom",
