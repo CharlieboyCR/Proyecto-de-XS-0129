@@ -209,7 +209,8 @@ server = function(input, output){
             filter(base$sex == "M") |>
             group_by(Medu, higher) |>
             summarise(
-            Frecuencia = n()
+            Frecuencia = n(),
+            .groups = "drop"
           ) |>
             group_by(Medu) |>
             mutate(
@@ -220,7 +221,8 @@ server = function(input, output){
             filter(base$sex == "F") |>
             group_by(Medu, higher) |>
             summarise(
-              Frecuencia = n()
+              Frecuencia = n(),
+              .groups = "drop"
             ) |>
             group_by(Medu) |>
             mutate(
@@ -231,7 +233,8 @@ server = function(input, output){
           base |> 
             group_by(Medu, higher) |>
             summarise(
-              Frecuencia = n()
+              Frecuencia = n(),
+              .groups = "drop"
             ) |>
             group_by(Medu) |>
             mutate(
@@ -246,7 +249,8 @@ server = function(input, output){
             filter(base$sex == "M") |>
             group_by(Fedu, higher) |>
             summarise(
-              Frecuencia = n()
+              Frecuencia = n(),
+              .groups = "drop"
             ) |>
             group_by(Fedu) |>
             mutate(
@@ -258,7 +262,8 @@ server = function(input, output){
             filter(base$sex == "F") |>
             group_by(Fedu, higher) |>
             summarise(
-              Frecuencia = n()
+              Frecuencia = n(),
+              .groups = "drop"
             ) |>
             group_by(Fedu) |>
             mutate(
@@ -268,7 +273,8 @@ server = function(input, output){
           base |>
             group_by(Fedu, higher) |>
             summarise(
-              Frecuencia = n()
+              Frecuencia = n(),
+              .groups = "drop"
             ) |>
             group_by(Fedu) |>
             mutate(
