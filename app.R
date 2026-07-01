@@ -1,23 +1,26 @@
-# Librerias
-
+# Cargamos las librerías necesarias
 library(shiny)
 library(shinydashboard)
 library(readr)
 library(DT)
 library(dplyr)
 library(ggplot2)
+
+#Realizamos la lectura del archivo de las base de datos
 base <- read_delim("student-por.csv", 
                    delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
-# UI del Dashboard
+# Definimos las propiedades del UI del Dashboard
 ui <- dashboardPage(
   title = "Análisis del rendimiento en escuelas de portugal", 
   skin = "yellow",
   
+  # Definimos el títulos del dashboard
   dashboardHeader(
-    title = "Análisis del rendimiento en escuelas de portugal"
+    title = "Educación"
   ),
   
+  #Generamos la pestaña lateral del dashboard y sus apartados
   dashboardSidebar(
     sidebarMenu(
       id = "tabs",
@@ -33,6 +36,8 @@ ui <- dashboardPage(
         "Educación parental", 
         tabName = "grafico_3"
       ),
+      
+      # Generamos un botón específico para el tercer item del sidebar
       conditionalPanel(
         condition = "input.tabs == 'grafico_3'",
         radioButtons(
@@ -59,14 +64,17 @@ ui <- dashboardPage(
         "Apoyo educativo",
         tabName = "apoyo_educativo"
       )
-      # Nota: Se eliminó el menú de "Parámetros editables" de aquí
     )
   ),
+  
+  # Ahora definimos el cuerpo del dashboard
+  
   dashboardBody(
     tags$style(HTML(
       "table.dataTable{font-size:16px}")
       ),
     
+    # Definimos el contenido de cada item
     tabItems(
       tabItem(
         tabName = "grafico_2", 
@@ -80,11 +88,14 @@ ui <- dashboardPage(
             selected = "Visual",
             inline = TRUE
           ),
+          
           conditionalPanel(
             condition = "input.tipoGrafico == 'Formal'",  checkboxInput(
               inputId = "Limpio",
       label = "Eliminar los valores extremos")
-          , 
+          ,
+      
+      # Se genera un filttro para seleccionar el nivel de significancía
       sliderInput(
         inputId = "alpha",
         label = "Nivel de significancia",
@@ -95,7 +106,7 @@ ui <- dashboardPage(
         )),
       plotOutput("grafico")
       ),
-      # 1. Pestaña Estudio
+      
       tabItem(tabName = "estudio",
               h2("Rendimiento académico y asistencias a clases"),
               fluidRow(
@@ -105,9 +116,10 @@ ui <- dashboardPage(
                 )
               )),
       
-      # 2. Pestaña Brecha Digital
       tabItem(
         tabName = "grafico_3",
+        
+        # Generamos el formato con el que se presentan los elementos de cada item, en este caso gráfico 3
     fluidRow(
         box(width = 4,
         h2("Aspiraciones de educación superior vs. educación parental"),
@@ -166,13 +178,13 @@ ui <- dashboardPage(
                     )
                   )
               )
-            )
-    )
+        )
+      )
     )
   )
 )
 
-
+# Creamos el objeto con los parámetros necesario para la generación de los gráficos de educación parental
 tema_grafico <- theme_classic() +
   theme(
     legend.position = "bottom",
@@ -206,11 +218,11 @@ grafico_base <- list(
   tema_grafico
 )
 
-#server original
+# Generamos la estructura del server
 
 server <- function(input, output, session) {
   
-  # Tabla Resumen 
+  # Generamos la tabla resumen de las notas de los estudiantes basado en el tipo de apoyo adicional
   output$tabla_resumen <- renderTable({
     base %>%
       group_by(Soporte = .data[[input$variable_apoyo]]) %>%
@@ -221,6 +233,7 @@ server <- function(input, output, session) {
         `Desviación Estándar`   = round(sd(G3, na.rm = TRUE), 2)
       )})
   
+  # Generamos el gráfico de apoyo parental
   output$grafico_3 <- renderPlot({
     
     if(input$Selector_madre_padre == "Madre"){
@@ -285,7 +298,7 @@ server <- function(input, output, session) {
       
     }
     
-  }) ## TABLA 
+  }) # Generamos la tabla resumen para obtener la frecuencia absoluta y relativa de los estudiantes que continúan sus estudios según el nivel educativo de los padres
   output$tabla_resumen_3 <- renderDT({ 
     
     
@@ -385,16 +398,17 @@ server <- function(input, output, session) {
     )
   })
     
+  # Se genera un par de gráficos dependiendo de la preferencia del usuario
   output$grafico <- renderPlot ({
-    if(input$tipoGrafico == "Visual") {
+    if(input$tipoGrafico == "Visual") { # Se filtra la preferencia visual y se genera el boxplot
         boxplot(
         base$G3~base$internet,
         main = "Brecha en la educación",
         xlab = "Acceso a Internet",
         ylab = "Valor",
         col = "grey"
-      )} else {
-        if(input$Limpio){
+      )} else { # Se pasa a una visualización de una prueba formal de hipóstesis
+        if(input$Limpio){ # Opción para los que quieran ver la base limpia
         Datos_Limpios2 <- base %>% 
           mutate(Q1 = quantile(base$G3, 0.25) ,
                  Q3 = quantile(base$G3, 0.75),
@@ -431,7 +445,7 @@ server <- function(input, output, session) {
           geom_point(aes(x=TObs, y = dt(TObs, df = gl)), size = 2)
         
         
-        } else {
+        } else { # Se genera una versión del gráfico anterior pero con todos los datos incluyendo valores extremos
       grupo1 <- base %>% 
         filter(internet == "yes")
       grupo2 <- base %>% 
@@ -465,7 +479,7 @@ server <- function(input, output, session) {
   
   })
   
-  # Boxplot 
+  # Se genera el Boxplot de la comparativa entre los que recibieron apoyo adicional, familiar e institucional 
   output$boxplot_g3 <- renderPlot({
     ggplot(base, aes(x = .data[[input$variable_apoyo]], y = G3, fill = .data[[input$variable_apoyo]])) +
       geom_boxplot(alpha = 0.7, outlier.colour = "#891A1E", outlier.shape = 16) +
@@ -479,7 +493,7 @@ server <- function(input, output, session) {
       theme(legend.position = "none", plot.title = element_text(face = "bold", size = 14))
   })
   
-  #Gráfico de dispersión
+  # Se genera el Gráfico de dispersión del crucen de variables entre ausencias y las notas finales, junto con su linea de tendencia
   output$plot_1 <- renderPlot({
     ggplot(data = base, aes(x = absences, y = G3, 
                             color = case_when(G3 <= 9 ~ "Desempeño insuficiente", 
@@ -491,7 +505,7 @@ server <- function(input, output, session) {
       geom_smooth(method = "lm", se = FALSE)
   })
   
-  # Histograma 
+  # Se genera el Histograma comparativo entre los que recibieron apoyo adicional, familiar e institucional 
   output$histograma_g3 <- renderPlot({
     ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
       geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
@@ -507,5 +521,5 @@ server <- function(input, output, session) {
   })
 }
 
-# Desplegar la aplicación
+# Se despliega la aplicación
 shinyApp(ui = ui, server = server)
