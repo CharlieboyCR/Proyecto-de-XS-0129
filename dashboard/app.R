@@ -96,7 +96,7 @@ server = function(input, output){
       s2 <- sd(grupo2$G3)
       
       sp <- sqrt(((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2))
-      gl= length(base$G3)-2
+      gl= n1+n2-2
       
       TObs <- (x1-x2)/(sp*sqrt(1/n1+1/n2))
       TCrit <- qt(1-0.05/2, df = gl)
@@ -108,7 +108,7 @@ server = function(input, output){
         geom_area(data = subset(datosg2, z <= -TCrit), fill = "red")+
         geom_area(data = subset(datosg2, z >= TCrit), fill = "red")+
         geom_point(aes(x=TObs, y = dt(TObs, df = gl)), size = 2)
-      
+        
       
       }
   
