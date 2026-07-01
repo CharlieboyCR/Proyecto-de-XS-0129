@@ -4,23 +4,22 @@ library(shinydashboard)
 library(readr)
 library(dplyr)
 library(ggplot2)
-
 base <- read_delim("student-por.csv", 
                    delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 # UI del Dashboard
 ui <- dashboardPage(
-  title = "Proyecto Shiny", 
+  title = "Análisis del rendimiento en escuelas de portugal", 
   skin = "yellow",
   
   dashboardHeader(
-    title = "Proyecto test"
+    title = "Análisis del rendimiento en escuelas de portugal"
   ),
   
   dashboardSidebar(
     sidebarMenu(
       menuItem(
-        "Estudio y rendimiento académico", 
+        "Rendimiento académico y asistencias", 
         tabName = "estudio"
       ),
       menuItem(
@@ -34,34 +33,25 @@ ui <- dashboardPage(
       menuItem(
         "Apoyo educativo",
         tabName = "apoyo_educativo"
-      ),
-      menuItem(
-        "Parámetros editables",
-        icon = icon("gear"),
-        menuSubItem(
-          text = radioButtons("variable_apoyo", 
-                              label = "Tipo de apoyo:",
-                              choices = c("Apoyo escolar" = "schoolsup",
-                                          "Apoyo familiar" = "famsup"),
-                              selected = "schoolsup")
-        )
       )
+      # Nota: Se eliminó el menú de "Parámetros editables" de aquí
     )
   ),
   
   dashboardBody(
     tabItems(
       
-      # 1. Pestaña Estudio (CORREGIDA: Ahora cierra correctamente)
+      # 1. Pestaña Estudio
       tabItem(tabName = "estudio",
-              h2("Estudio y rendimiento académico"),
+              h2("Rendimiento académico y asistencias a clases"),
               fluidRow(
                 box(
-                  plotOutput("plot_1", height = 500)
+                  plotOutput("plot_1", height = 500),
+                  width = 12
                 )
-      )),
+              )),
       
-      # 2. Pestaña Brecha Digital (CORREGIDA: Sin tilde en "grafico_2" y ya no está anidada ni duplicada)
+      # 2. Pestaña Brecha Digital
       tabItem(
         tabName = "grafico_2", 
         h2("Brecha digital en la educación"),
@@ -98,12 +88,26 @@ ui <- dashboardPage(
               p("Contenido en desarrollo...")
       ),
       
-      # 4. Pestaña Apoyo Educativo
+      # 4. Pestaña Apoyo Educativo (MODIFICADA)
       tabItem(tabName = "apoyo_educativo",
               fluidRow(
+                # NUEVO: Caja para los parámetros de apoyo
                 box(
-                  title = "Análisis de calificaciones de Portugués con respecto al apoyo escolar y familiar", 
-                  width = 12, 
+                  title = "Parámetros",
+                  width = 3, # Toma 3 de las 12 columnas disponibles
+                  status = "warning",
+                  solidHeader = TRUE,
+                  radioButtons("variable_apoyo", 
+                               label = "Tipo de apoyo:",
+                               choices = c("Apoyo escolar" = "schoolsup",
+                                           "Apoyo familiar" = "famsup"),
+                               selected = "schoolsup")
+                ),
+                
+                # Caja principal con los resultados
+                box(
+                  title = "Análisis de calificaciones de Portugués", 
+                  width = 9, # Toma las 9 columnas restantes
                   status = "primary", 
                   solidHeader = TRUE,
                   
