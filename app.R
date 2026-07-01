@@ -5,7 +5,7 @@ library(shinydashboard)
 library(tidyverse)
 library(readr)
 
-base <- read_delim("~/Proyecto-de-XS-0129/student-por.csv", 
+base <- read_delim("student-por.csv", 
                       delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 # Dashbase# Dashboard
