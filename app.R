@@ -1,58 +1,66 @@
-
 # Librerias
 library(shiny)
 library(shinydashboard)
-library(tidyverse)
 library(readr)
+library(dplyr)
+library(ggplot2)
 
-# Dashboard
 base <- read_delim("student-por.csv", 
-                   delim = ";", 
-                   escape_double = FALSE, 
-                   trim_ws = TRUE)
+                   delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 # UI del Dashboard
-ui <- dashboardPage(title = "Proyecto Shiny", 
-                    skin = "yellow",
-
+ui <- dashboardPage(
+  title = "Proyecto Shiny", 
+  skin = "yellow",
+  
   dashboardHeader(
     title = "Proyecto test"
   ),
   
   dashboardSidebar(
     sidebarMenu(
+      id = "tabs", 
       menuItem(
         "Estudio y rendimiento académico", 
         tabName = "estudio"
       ),
       menuItem(
         "Brecha digital en la educación", 
-        tabName = "gráfico_2"
+        tabName = "grafico_2"
       ),
       menuItem(
         "Educación parental", 
         tabName = "grafico_3"
       ),
       menuItem(
-        "Apoyo educativo"
+        "Apoyo educativo",
+        tabName = "apoyo_educativo"
       ),
       menuItem(
-        "Parametros editables",
+        "Parámetros editables",
+        icon = icon("gear"),
         menuSubItem(
-          "Primer parametro global"
+          text = radioButtons("variable_apoyo", 
+                              label = "Tipo de apoyo:",
+                              choices = c("Apoyo escolar" = "schoolsup",
+                                          "Apoyo familiar" = "famsup"),
+                              selected = "schoolsup")
         ),
         menuSubItem(
-          "Segundo parametro global"
+          "Segundo parámetro global"
         ),
         menuSubItem(
-          "Tercer parametro global"
+          "Tercer parámetro global"
         )
       )
     )
   ),
   
   dashboardBody(
-    tabItems(
+    tabItems(      
+      tabItem(tabName = "estudio",
+              h2("Estudio y rendimiento académico"),
+              p("Contenido en desarrollo..."),
       tabItem(
         tabName = "gráfico_2",
         h2("Brecha digital en la educación"),
@@ -81,70 +89,64 @@ ui <- dashboardPage(title = "Proyecto Shiny",
           plotOutput("grafico")
         )
       ),
-      tabItem(
-        tabName = "grafico_3",
-         fluidRow(
-           box(width = 12,
-               h2("Aspiraciones de educación superior vs. educación parental"),
-               p(style = "font-size:20px", "El siguiente gráfico de barras permite explorar las proporciones de los estudiantes si tienen intencion de cursar sus estudios superiores y como se relacionan dependiendo del nivel de estudio alcanzado por sus padres. Las barras muestran la proporción de estudiantes que planena continuar con eduación superior para cada nivel educativo alcanzado por sus padres. Esto permite identificar posibles asociaciones entre la educación parental y las aspiraciones académicas de los estudiantes"),
-               p(style = "font-size:20px", "Los niveles de educación alcanzada por los padres, son los siguientes:"),
-               div(style = "font-size:18px",
-                   p("0: No posee educación"),
-                   p("1: Educación primeria (hasta 4to grado) completada"),
-                   p("2: De 5to grado a 9no grado completos"),
-                   p("3: educación secundaria completada"),
-                   p("4: educación superior completada")
-               ),
-               
-               div(style = "font-size:20px; text-align:center",
-                   
-                   radioButtons(
-                     inputId = "Selector_madre_padre", 
-                     label = "Escoja uno de los padres para ser representado en el gráfico",
-                     choices = c(
-                       "Madre" = "Madre", "Padre" = "Padre")
-                   ),
-                   
-                   radioButtons(
-                     inputId = "Selector_genero",
-                     label = "Seleccione un genero",
-                     choices = c(
-                       "Ambos" = "Ambos",
-                       "Hombres" = "Hombres",
-                       "Mujeres" = "Mujeres"
-                     )
-                   )
-               )
-           )
-         ),
-         fluidRow(
-           box(width = 12,
-               align = "center",
-               plotOutput("grafico_3", width = "800px", height = "500px")
-           ),
-           fluidRow(
-             box(width = 12,
-                 h3("Podemos llegar a las siguientes concluciones viendo el gráfico de barras:"),
-                 p(""))
-           )
-         )
-        
+      tabItem(tabName = "grafico_2",
+              h2("Brecha digital en la educación"),
+              p("Contenido en desarrollo...")
       ),
-      tabItem(tabName = "estudio",
+      tabItem(tabName = "grafico_3",
+              h2("Educación parental"),
+              p("Contenido en desarrollo...")
+      ),
+      
+      # Pestaña para apoyo educativo
+      tabItem(tabName = "apoyo_educativo",
               fluidRow(
                 box(
-                  plotOutput("plot_1", height = 250)
+                  title = "Análisis de calificaciones de Portugués con respecto al apoyo escolar y familiar", 
+                  width = 12, 
+                  status = "primary", 
+                  solidHeader = TRUE,
+                  
+                  tabBox(
+                    title = "Resultados",
+                    id = "tabset_resultados", 
+                    width = 12,
+                    
+                    tabPanel("Tabla Resumen", 
+                             br(),
+                             tags$h3("Métricas Descriptivas de G3"),
+                             p("A continuación se presentan la media, mediana, desviación estándar y conteo de estudiantes según el apoyo recibido:"),
+                             tableOutput("tabla_resumen")
+                    ),
+                    
+                    tabPanel("Gráficos de Distribución", 
+                             br(),
+                             plotOutput("boxplot_g3"),
+                             br(),
+                             plotOutput("histograma_g3")
+                    )
+                  )
                 )
-            )
+              )
       )
     )
   )
 )
 
+
+server <- function(input, output, session) {
   
-  
-# Servidor
-server = function(input, output){
+  # Tabla Resumen 
+  output$tabla_resumen <- renderTable({
+    base %>%
+      group_by(Soporte = .data[[input$variable_apoyo]]) %>%
+      summarise(
+        `Total Estudiantes` = n(),
+        `Media de notas (G3)`   = round(mean(G3, na.rm = TRUE), 2),
+        `Mediana de notas (G3)` = median(G3, na.rm = TRUE),
+        `Desviación Estándar`   = round(sd(G3, na.rm = TRUE), 2)
+      )
+    
   output$grafico <- renderPlot ({
     if(input$tipoGrafico == "Visual") {
         boxplot(
@@ -225,119 +227,35 @@ server = function(input, output){
   
   })
   
-  output$grafico_3 <- renderPlot({
-    
-    if(input$Selector_madre_padre == "Madre"){
-      
-      if (input$Selector_genero == "Hombres") {
-        
-        ggplot(base |> filter(sex == "M"), aes(x = Medu, fill = higher)) +
-          
-          geom_bar(position = "fill") +
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom"
-          )
-        
-        
-      } else if (input$Selector_genero == "Mujeres") {
-        
-        ggplot(base |> filter(sex == "F"), aes(x = Medu, fill = higher)) +
-          
-          geom_bar(position = "fill")+
-          
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom"
-          )
-        
-      } else {
-        
-        ggplot(base, aes(x = Medu, fill = higher)) +
-          
-          geom_bar(position = "fill")+
-          
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom"
-          )
-      }
-      
-    } else {
-      
-      if (input$Selector_genero == "Hombres") {
-        
-        ggplot(base |> filter(sex == "M"), aes(x = Fedu, fill = higher)) +
-          
-          geom_bar(position = "fill")+
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom"
-          )
-        
-        
-      } else if (input$Selector_genero == "Mujeres"){
-        
-        ggplot(base |> filter(sex == "F"), aes(x = Fedu, fill = higher)) +
-          
-          geom_bar(position = "fill")+
-          
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom"
-          )
-        
-        
-      } else {
-        ggplot(base, aes(x = Fedu, fill = higher)) +
-          
-          geom_bar(position = "fill")+
-          
-          
-          labs(x= "Nivel educativo de la madre", y = "proporción")+
-          
-          scale_fill_manual(values = c("yes" = "darkgreen", "no" = "red"),
-                            labels = c("Sí", "No"), name = "¿Desea cursar estudios superiores?") +
-          theme(
-            legend.position = "bottom",
-          )
-        
-      }
-      
-    }
+  # Boxplot 
+  output$boxplot_g3 <- renderPlot({
+    ggplot(base, aes(x = .data[[input$variable_apoyo]], y = G3, fill = .data[[input$variable_apoyo]])) +
+      geom_boxplot(alpha = 0.7, outlier.colour = "#891A1E", outlier.shape = 16) +
+      labs(
+        title = paste("Distribución de G3 según tipo de apoyo ", input$variable_apoyo),
+        x = paste("Recibe", input$variable_apoyo ),
+        y = "Calificación Final (G3)"
+      ) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Set1") +
+      theme(legend.position = "none", plot.title = element_text(face = "bold", size = 14))
   })
   
-  output$plot_1 <- renderPlot({
-    ggplot(data = base, aes(x = absences, y = G3, 
-                            color = case_when(G3 <= 9 ~ "Desempeño insuficiente", 
-                                              G3 < 13 ~ "Satisfactorio", 
-                                              G3 < 17 ~ "Bueno", 
-                                              G3 >= 17 ~ "Excelente"))) + 
-      geom_point() + 
-      labs(color = "Categoría") + 
-      geom_smooth(method = "lm", se = FALSE)
+  # Histograma 
+  output$histograma_g3 <- renderPlot({
+    ggplot(base, aes(x = G3, fill = .data[[input$variable_apoyo]])) +
+      geom_histogram(binwidth = 1, alpha = 0.6, position = "identity", color = "black") +
+      labs(
+        title = paste("Histograma de Frecuencias de G3 por tipo de apoyo", input$variable_apoyo),
+        x = "Calificación Final (G3)",
+        y = "Frecuencia Absoluta",
+        fill = input$variable_apoyo
+      ) +
+      theme_minimal() +
+      scale_fill_brewer(palette = "Set1") +
+      theme(plot.title = element_text(face = "bold", size = 14))
   })
 }
 
+# Desplegar la aplicación
 shinyApp(ui = ui, server = server)
-
